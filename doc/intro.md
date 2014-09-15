@@ -1,3 +1,3 @@
-# Introduction to appium-clj-client
+# Introduction to appium-clj
 
 TODO: write [great documentation](http://jacobian.org/writing/great-documentation/what-to-write/)
