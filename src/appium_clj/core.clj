@@ -8,9 +8,8 @@
 (defn -main
   "Build an iOS project and run appium queries on it"
   [project-path provision-profile config]
-  (build-ios/run-on-connected-device project-path
-                                     provision-profile
-                                     config
+  (build-ios/run-on-connected-device {:project-path project-path
+                                      :provision-profile provision-profile
+                                      :config "Debug"}
                                      (fn []
-                                       (ios/click "hs-btn-decomp-report-issue")
-                                       (ios/click "Send"))))
+                                       (ios/click "button1"))))

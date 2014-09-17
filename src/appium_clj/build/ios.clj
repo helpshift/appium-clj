@@ -4,7 +4,7 @@
   (:require [clojure.string :as cs]
             [clojure.java.io :as io]
             [clojure.tools.logging :refer [info error]]
-            [appium-clj.util :refer [run-sh run-with-dir]]
+            [appium-clj.util :refer [run-sh run-with-dir some-truthy]]
             [appium-clj.platforms.ios :as ios])
   (:import java.io.IOException
            io.appium.java_client.AppiumDriver
@@ -60,7 +60,7 @@
                                         command-output))))
 
 
-(defn build-project
+(defn setup-project
   "Builds iOS project given a path and provision profile and returns
 path for .ipa file.
 
@@ -164,17 +164,44 @@ Starts appium server and installs app on device."
 
 (defn run-on-connected-device
   "Installs app and returns fn to run test body on connected
-iOS device."
-  [project-path provision-profile config test-fn]
-  (let [appium-driver (install-ios-app (build-project project-path
-                                                      provision-profile
-                                                      config)
-                                       appium-server-port)
-        run-ios-tests (fn [tests & {:keys [reset?]
-                                   :or {reset? true}}]
-                        (info "Running appium tests")
-                        (ios/run-on-device reset?
-                                           appium-driver
-                                           tests))]
+iOS device.
+
+   opts: {:project-path - path to ios project.
+          :ipa-path - path to ipa file
+          :provision-profile - Name of mobile provision profile.
+                        Must be in same project path.
+                        (Optional if ipa-path is specified)
+          :config - Debug or Release (Optional if ipa-path is specified)}
+   test-fn: appium queries
+
+   For Ex.:
+   (run-on-connected-device {:ipa-path \"path/to/ipa-file\"}
+                            (fn []
+                              ;; Write appium queries
+                              (ios/click \"button1\"))
+
+  OR
+  (run-on-connected-device {:ipa-path \"path/to/ios-project/\"
+                            :provision-profile \"provision-profile.mobileprovision\"
+                            :config \"Release OR Debug\"}
+                            (fn []
+                              ;; Write appium queries
+                              (ios/click \"button1\"))"
+  [{:keys [project-path ipa-path]
+    :as opts} test-fn]
+  {:pre [(some-truthy opts :project-path :ipa-path)]}
+  (let [{:keys [project-path ipa-path provision-profile config]} opts
+         appium-driver (install-ios-app (if ipa-path
+                                          ipa-path
+                                          (setup-project project-path
+                                                         provision-profile
+                                                         config))
+                                        appium-server-port)
+         run-ios-tests (fn [tests & {:keys [reset?]
+                                    :or {reset? true}}]
+                         (info "Running appium tests")
+                         (ios/run-on-device reset?
+                                            appium-driver
+                                            tests))]
     (run-ios-tests test-fn :reset? false)
     run-ios-tests))
