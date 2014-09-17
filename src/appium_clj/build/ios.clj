@@ -147,13 +147,14 @@ Starts appium server and installs app on device."
                                     device-uuid))]
     (info "Installing app on device.")
     (doto capabilities
+      (.setCapability "app" app-path)
+      (.setCapability "noReset" true)
+      (.setCapability "udid" device-uuid)
+      (.setCapability "platformName" "iOS")
+      (.setCapability "newCommandTimeout" command-timeout)
       (.setCapability "device" (get-device-type device-info))
       (.setCapability (. CapabilityType VERSION)
-                      (get-device-version device-info))
-      (.setCapability "platformName" "iOS")
-      (.setCapability "udid" device-uuid)
-      (.setCapability "app" app-path)
-      (.setCapability "newCommandTimeout" command-timeout))
+                      (get-device-version device-info)))
     (start-appium-server port)
     (AppiumDriver.
          (io/as-url (format "http://127.0.0.1:%s/wd/hub"
