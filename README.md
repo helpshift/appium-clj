@@ -19,9 +19,18 @@ The following code block will do these things.
 (require '[appium-clj.build.ios :as ios-build]
          '[appium-clj.platforms.ios :as ios])
 
-(ios-build/run-on-connected-device "/path/to/ios-project/"
-                                   "provision-profile.mobileprovision"
-                                   "Release OR Debug"
+(ios-build/run-on-connected-device {:project-path "/path/to/ios-project/"
+                                    :provision-profile "provision-profile.mobileprovision"
+                                    :config "Release OR Debug"}
+                                   (fn []
+                                      ;; Write appium queries
+                                      (ios/click "button1")))
+```
+
+OR
+
+```clj
+(ios-build/run-on-connected-device {:ipa-path "/path/to/ipa-file/"}
                                    (fn []
                                       ;; Write appium queries
                                       (ios/click "button1")))
