@@ -181,7 +181,7 @@ iOS device.
                               (ios/click \"button1\"))
 
   OR
-  (run-on-connected-device {:ipa-path \"path/to/ios-project/\"
+  (run-on-connected-device {:project-path \"path/to/ios-project/\"
                             :provision-profile \"provision-profile.mobileprovision\"
                             :config \"Release OR Debug\"}
                             (fn []
